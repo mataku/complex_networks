@@ -8,6 +8,7 @@
 # CNN モデルのアルゴリズム
 # (以下の1, 2を繰り返す)
 #
+# 0. 1つの頂点から始める
 # 1. 1-pの確率で新たなノードを作成し、
 #    既存のノードからランダムに1つ選び、リンクを結ぶ.
 #    結んだ先のノードの近傍(そのノードからでているリンクの宛先ノード)を潜在的なリンク(potential edge)とする
@@ -26,10 +27,8 @@ class CNN():
     def __init__(self, p = 0.2, steps = 100):
 
         self.links = {}
-        self.index_of_node = 2
-
-        for id in range(self.index_of_node + 1):
-            self.links[id] = {}
+        self.index_of_node = 0
+        self.links[self.index_of_node] = {}
 
         self.potential_links = []
         self.p = p
@@ -39,14 +38,11 @@ class CNN():
 
 
     # 初期状態のネットワークを生成
-    # 0 - 1 - 2 -> 0 - 2が潜在辺
-    def generate_init_network(self):
-
-        for index in range(2):
-            self.links[index][index+1] = 0
-            self.links[index+1][index] = 0
-
-        self.potential_links.append((0,2))
+    # 参考図: \もしくは/: 実辺, 点は潜在辺を表す
+    #     1
+    #    / \
+    #   /   \
+    #  0 ... 2
 
     def add_node(self):
         self.index_of_node += 1
@@ -60,11 +56,18 @@ class CNN():
 
 
     def convert_potential_link(self):
-        potential_source_node, potential_target_node = random.choice(self.potential_links)
+        if len(self.potential_links) == 0:
+            return
+
+        target_index = random.randint(0, len(self.potential_links) - 1)
+        potential_source_node, potential_target_node = self.potential_links[target_index]
         self.links[potential_source_node][potential_target_node] = 0
         self.links[potential_target_node][potential_source_node] = 0
+        del self.potential_links[target_index]
+
 
     def generate(self):
+        self.generate_init_network()
 
         for _ in range(self.steps):
             rnd_value = random.random()
@@ -81,6 +84,6 @@ def print_links(links):
 
 
 
-cnn = CNN()
-cnn.generate_init_network()
+cnn = CNN(steps = 10000)
 cnn.generate()
+print_links(cnn.links)
