@@ -81,6 +81,6 @@ def print_links(links):
 
 
 
-temp = CNN()
-temp.generate_init_network()
-temp.generate()
+cnn = CNN()
+cnn.generate_init_network()
+cnn.generate()
