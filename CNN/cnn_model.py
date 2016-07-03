@@ -2,8 +2,7 @@
 # coding: utf-8
 
 # CNN(Connecting Nearest Neighbor)モデル
-# 考え方: "友達の友達は、友達だ"
-# ・友達の友達とは、友達になる可能性がある
+# 考え方: "友達の友達は、友達"
 
 # CNN モデルのアルゴリズム
 # (以下の1, 2を繰り返す)
@@ -16,6 +15,7 @@
 #
 
 import random
+import simplejson
 
 # class Node():
 #     def __init__(self, id):
@@ -27,8 +27,8 @@ class CNN():
     def __init__(self, p = 0.2, steps = 100):
 
         self.links = {}
-        self.index_of_node = 0
-        self.links[self.index_of_node] = {}
+        self.subscript_of_node = 0
+        self.links[self.subscript_of_node] = {}
 
         self.potential_links = []
         self.p = p
@@ -38,29 +38,28 @@ class CNN():
 
 
     def add_node(self):
-        self.index_of_node += 1
-        self.links[self.index_of_node] = {}
+        self.subscript_of_node += 1
+        self.links[self.subscript_of_node] = {}
 
-        target_index = random.randint(0, self.index_of_node - 1)
-        self.potential_links += [(self.index_of_node, x) for x in self.links[target_index].keys()]
+        target_subscript = random.randint(0, self.subscript_of_node - 1)
+        self.potential_links += [(self.subscript_of_node, x) for x in self.links[target_subscript].keys()]
 
-        self.links[self.index_of_node][target_index] = 0
-        self.links[target_index][self.index_of_node] = 0
+        self.links[self.subscript_of_node][target_subscript] = 0
+        self.links[target_subscript][self.subscript_of_node] = 0
 
 
     def convert_potential_link(self):
         if len(self.potential_links) == 0:
             return
 
-        target_index = random.randint(0, len(self.potential_links) - 1)
-        potential_source_node, potential_target_node = self.potential_links[target_index]
+        target_subscript = random.randint(0, len(self.potential_links) - 1)
+        potential_source_node, potential_target_node = self.potential_links[target_subscript]
         self.links[potential_source_node][potential_target_node] = 0
         self.links[potential_target_node][potential_source_node] = 0
-        del self.potential_links[target_index]
+        del self.potential_links[target_subscript]
 
 
     def generate(self):
-        self.generate_init_network()
 
         for _ in range(self.steps):
             rnd_value = random.random()
@@ -70,13 +69,27 @@ class CNN():
                 self.add_node()
 
 
-def print_links(links):
-    for source in links:
-        for target in links[source]:
-            print(source, target)
+def to_csv(link_data, separater=' '):
+    for source in link_data:
+        for target in link_data[source]:
+            print(source, target, sep=separater)
 
+def to_json_for_d3(link_data):
+    nodes = []
+    links = []
 
+    for node in link_data.keys():
+        nodes.append({'degree': len(link_data[node]), 'name': node})
 
-cnn = CNN(steps = 10000)
+        for target in link_data[node]:
+            links.append({"source": node, "target": target})
+
+    json = {'links': links, 'nodes': nodes}
+    return simplejson.dumps(json)
+
+cnn = CNN(steps = 100)
 cnn.generate()
-#print_links(cnn.links)
+
+# json = to_json_for_d3(cnn.links)
+# csv_data = to_csv(cnn.links))
+# print(json)
