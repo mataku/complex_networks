@@ -37,13 +37,6 @@ class CNN():
         random.seed()
 
 
-    # 初期状態のネットワークを生成
-    # 参考図: \もしくは/: 実辺, 点は潜在辺を表す
-    #     1
-    #    / \
-    #   /   \
-    #  0 ... 2
-
     def add_node(self):
         self.index_of_node += 1
         self.links[self.index_of_node] = {}
@@ -86,4 +79,4 @@ def print_links(links):
 
 cnn = CNN(steps = 10000)
 cnn.generate()
-print_links(cnn.links)
+#print_links(cnn.links)
