@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # coding: utf-8
 
-# ・Barabash-Albert model の アルゴリズム
+# ・Barabasi-Albert model の アルゴリズム
 #   1. ノード数n(nは小さい数)の完全グラフを生成
 #   2. ノードを1つ追加
 #   3. 追加された新規ノードからm本(m<=n)のリンクを、既存のノードへ繋ぐ.
@@ -24,7 +24,7 @@ import simplejson
 from copy import deepcopy
 from collections import OrderedDict
 
-class BA():
+class BarabasiAlbert():
 
     def __init__(self, init_number_of_nodes = 3, max_number_of_nodes = 100, number_of_node_to_link = None):
 
@@ -101,7 +101,7 @@ def to_json_for_d3(link_data):
     links = []
 
     for node in link_data.keys():
-        nodes.append({'degree': len(link_data[node]), 'name': node})
+        nodes.append({'name': node, 'degree': len(link_data[node])})
 
         for target in link_data[node]:
             links.append({"source": node, "target": target})
@@ -112,7 +112,5 @@ def to_json_for_d3(link_data):
     json['links'] = links
     return simplejson.dumps(json, ensure_ascii=False)
 
-test_network = BA(init_number_of_nodes = 3)
+test_network = BarabasiAlbert(init_number_of_nodes = 3)
 test_network.generate()
-#print(to_json_for_d3(OrderedDict(test_network.links)))
-#to_csv(test_network.links)
