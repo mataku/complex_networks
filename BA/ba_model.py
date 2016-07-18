@@ -115,4 +115,4 @@ def to_json_for_d3(link_data):
 test_network = BA(init_number_of_nodes = 3)
 test_network.generate()
 #print(to_json_for_d3(OrderedDict(test_network.links)))
-#print(to_csv(test_network.links))
+#to_csv(test_network.links)
