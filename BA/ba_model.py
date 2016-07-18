@@ -19,16 +19,17 @@
 #   self.number_of_node_to_link: 新規ノード生成時に、生成するリンク数の定義
 
 
-from random import seed, randint
-from traceback import format_exc
+import random
+import simplejson
 from copy import deepcopy
+from collections import OrderedDict
 
 class BA():
 
     def __init__(self, init_number_of_nodes = 3, max_number_of_nodes = 100, number_of_node_to_link = None):
 
         if init_number_of_nodes < 1 or max_number_of_nodes < 1:
-            raise Exception("初期ノード数は1以上、生成ノード数は正の数である必要があります。")
+            raise Exception("初期ノード数、最大ノード数は1以上の数")
 
         self.links = {}
         self.number_of_nodes = init_number_of_nodes
@@ -53,15 +54,7 @@ class BA():
                     self.links[x][index] = 0
                     self.links[index][x] = 0
 
-
-    # def number_set(self):
-    #     numbers = []
-    #     while len(numbers) < self.number_of_nodes_to_link:
-    #         temp_number = randint(1, self.number_of_links)
-    #         if temp_number not in numbers:
-    #             numbers.append(temp_number)
-    #     return sorted(numbers, key=int)
-
+ 
     # 新規ノードからリンクを生成する際の、宛先ノードの選定
     def choose_node(self):
 
@@ -71,7 +64,7 @@ class BA():
 
         while len(nodes) < self.number_of_nodes_to_link:
             temp_number = 0
-            number_to_select = randint(1, number_of_links)
+            number_to_select = random.randint(1, number_of_links)
             for x in links.keys():
                 temp_number += len(links[x])
                 if temp_number >= number_to_select:
@@ -84,7 +77,7 @@ class BA():
 
 
     def generate(self):
-        seed()
+        random.seed()
 
         while self.number_of_nodes < self.max_number_of_nodes:
             nodelist = self.choose_node()
@@ -98,5 +91,28 @@ class BA():
             self.number_of_nodes += 1
 
 
-test = BA(init_number_of_nodes = 3)
-test.generate()
+def to_csv(link_data, separater=','):
+    for source in link_data:
+        for target in link_data[source]:
+            print(source, target, sep=separater)
+
+def to_json_for_d3(link_data):
+    nodes = []
+    links = []
+
+    for node in link_data.keys():
+        nodes.append({'degree': len(link_data[node]), 'name': node})
+
+        for target in link_data[node]:
+            links.append({"source": node, "target": target})
+    
+    json = OrderedDict()
+    #json = {'nodes': nodes, 'links': links}
+    json['nodes'] = nodes
+    json['links'] = links
+    return simplejson.dumps(json, ensure_ascii=False)
+
+test_network = BA(init_number_of_nodes = 3)
+test_network.generate()
+#print(to_json_for_d3(OrderedDict(test_network.links)))
+#print(to_csv(test_network.links))
